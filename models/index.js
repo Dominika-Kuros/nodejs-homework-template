@@ -1,49 +1,45 @@
-const { Schema, model, mongoose } = require("mongoose");
+const { Schema, model } = require("mongoose");
+
 const Joi = require("joi");
 
 const handleMongooseError = require("../helpers/handleMongooseError");
+
+const nameRegex = "^[A-Z][a-z]+ [A-Z][a-z]+$";
+const phoneRegex = "^[0-9]{3}-[0-9]{3}-[0-9]{4}$";
 
 const contactSchema = new Schema(
   {
     name: {
       type: String,
-      minLength: 3,
-      maxLength: 20,
-      trim: true,
-      required: [true, "the 'name' fileds is required"],
+      required: [true, "Set name for contact"],
     },
+
     email: {
       type: String,
-      trim: true,
-      required: [true, "the 'email' filed is required"],
     },
+
     phone: {
       type: String,
-      minLength: 3,
-      maxLength: 16,
-      trim: true,
-      required: [true, "The 'phone' field is required"],
     },
+
     favorite: {
       type: Boolean,
       default: false,
     },
-  },
-  {
-    versionKey: false,
-    timestamps: true,
-  }
-);
 
-contactSchema.path("email").validate(async (email) => {
-  const emailCount = await mongoose.models.contacts.countDocuments({ email });
-  return !emailCount;
-}, "Email already exist");
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
+  },
+  { versionKey: false, timestamps: true }
+);
 
 contactSchema.post("save", handleMongooseError);
 
 const addSchema = Joi.object({
-  name: Joi.string().required().messages({
+  name: Joi.string().pattern(new RegExp(nameRegex)).required().messages({
     "any.required": `Missing required name field`,
   }),
 
@@ -51,7 +47,7 @@ const addSchema = Joi.object({
     "any.required": `Missing required email field`,
   }),
 
-  phone: Joi.string().required().messages({
+  phone: Joi.string().pattern(new RegExp(phoneRegex)).required().messages({
     "any.required": `Missing required phone field`,
   }),
 
@@ -68,6 +64,6 @@ const Contact = model("contacts", contactSchema);
 
 module.exports = {
   Contact,
-  updateFavoriteSchema,
   addSchema,
+  updateFavoriteSchema,
 };

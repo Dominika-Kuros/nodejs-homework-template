@@ -5,8 +5,8 @@ const HttpError = require("../helpers/HttpError");
 const ctrlWrapper = require("../helpers/ctrlWrapper");
 require("dotenv").config();
 
-const { SECRET_KEY } = process.env;
-
+const secret = process.env.SECRET_KEY;
+console.log(secret);
 const register = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -41,10 +41,10 @@ const login = async (req, res) => {
   }
 
   const payload = { id: user._id };
-  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
+  const token = jwt.sign(payload, secret, { expiresIn: "23h" });
 
   await User.findByIdAndUpdate(user._id, { token });
-
+  console.log(token);
   res.status(200).json({
     token: token,
     user: {

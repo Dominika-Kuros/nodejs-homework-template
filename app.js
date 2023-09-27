@@ -3,7 +3,7 @@ const logger = require("morgan");
 const cors = require("cors");
 require("dotenv").config();
 const contactsRouter = require("./api/contacts");
-const authRouter = require("./api/auth");
+const usersRouter = require("./api/users");
 const app = express();
 
 const formatLogger = app.get("env") === "development" ? "dev" : "short";
@@ -11,7 +11,7 @@ const formatLogger = app.get("env") === "development" ? "dev" : "short";
 app.use(logger(formatLogger));
 app.use(cors());
 app.use(express.json());
-app.use("/users", authRouter);
+app.use("api/users", usersRouter);
 app.use("/api/contacts", contactsRouter);
 
 app.use((_, res) => {
